@@ -1,7 +1,7 @@
 /** DHCPMessage Class */
 /* by Jason Goldschmidt and Nick Stone 10/9/97*/
 
-// $Id: DHCPMessage.java,v 1.2 1999/02/02 02:12:06 jgoldsch Exp $
+// $Id: DHCPMessage.java,v 1.3 1999/02/02 02:22:30 jgoldsch Exp $
 package JDHCP;
 
 import java.net.*;
@@ -12,7 +12,6 @@ import JDHCP.DHCPOptions;
  * This class represents a DHCP Message.
  * @author Jason Goldschmidt and Nick Stone
  * @version 1.0.1 2/1/1999
- * @since    JDK1.0
  */
 
 public final class DHCPMessage {
