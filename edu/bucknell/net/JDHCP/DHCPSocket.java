@@ -1,28 +1,22 @@
-/*DHCPSocket class, part of DHCP API. 
-  allows for a Datagram Socket implementation for DHCP to use for 
-  sending and receiving DHCP Messages
-  written by Jason Goldschmidt 4/21/98 
-*/
 
-// 	$Id: DHCPSocket.java,v 1.1 1999/02/02 02:21:58 jgoldsch Exp $	
-package JDHCP;
+// 	$Id: DHCPSocket.java,v 1.2 1999/07/09 09:04:39 jgoldsch Exp $	
+
+package edu.bucknell.eg.JDHCP;
 
 import java.net.*;
-import java.io.*;
-import JDHCP.DHCPMessage;
+
 /**
- * This class represents a DHCP Message. 
+ * This class represents a Socket for sending DHCP Messages
  * @author Jason Goldschmidt 
- * @version 1.12  1998/05/28 03:37:24
- * @since    JDK1.0
+ * @version 1.1.0  1999/07/08 03:37:24
+ * @see java.net.DatagramSocket
  */
 
 
 public class DHCPSocket extends DatagramSocket  {
 
-    DatagramSocket gSocket;
-    int PACKET_SIZE = 8192;		// smaller????
-    int defaultSOTIME_OUT = 3000;
+    private int PACKET_SIZE = 1500; // default MTU for ethernet
+    private int defaultSOTIME_OUT = 3000;
 
     /** 
      * Constructor for creating DHCPSocket on a specific port on the local
@@ -31,28 +25,27 @@ public class DHCPSocket extends DatagramSocket  {
      */
 
     public DHCPSocket (int inPort) throws SocketException {
-	gSocket = new DatagramSocket(inPort);
-	gSocket.setSoTimeout(defaultSOTIME_OUT); // set default timeout option
+	super();
+	setSoTimeout(defaultSOTIME_OUT); // set default timeout option
     }
     
     /**
-     * Sets the socket timeout variable
-     * @param inTimeout integer value in miliseconds for socket timeout
-     */ 
-    
-    public synchronized void setSoTimeout(int inTimeout) 
-	 throws SocketException {
-	     gSocket.setSoTimeout(inTimeout);
-    }
-    
-    /** 
-     * Returns value of SO_TIMEOUT variable
-     * @return integer value of SO_TIMEOUT variable in miliseconds
+     * Sets the Maximum Transfer Unit for the UDP DHCP Packets to be set.
+     * Default is 1500, MTU for Ethernet
+     * @param inSize integer representing desired MTU
      */
+    
+    public void setMTU(int inSize) {
+	PACKET_SIZE = inSize;
+    }
 
-    public synchronized int getSoTimeout() throws SocketException {
-	return gSocket.getSoTimeout();
-
+    /**
+     * Returns the set MTU for this socket
+     * @return the Maximum Transfer Unit set for this socket
+     */
+    
+    public int getMTU() {
+	return PACKET_SIZE;
     }
     
     /**
@@ -61,10 +54,14 @@ public class DHCPSocket extends DatagramSocket  {
      */
        
     public synchronized void send(DHCPMessage inMessage)
-	 throws IOException {
-	     
-	     DatagramPacket outgoing = inMessage.formSend();
-	     gSocket.send(outgoing);
+	 throws java.io.IOException {
+	     byte[] data = inMessage.externalize();
+	     DatagramPacket outgoing = new DatagramPacket(data,
+							  PACKET_SIZE,
+							  inMessage.
+							  getDestinationAddress(),
+							  inMessage.getPort());
+	     gSocket.send(outgoing); // send outgoing message
     }
 
     /** 
@@ -74,19 +71,15 @@ public class DHCPSocket extends DatagramSocket  {
      * @param outMessage DHCPMessage object to receive new message into
      */
     
-    public synchronized boolean receive(DHCPMessage outMessage) 
-    {
+    public synchronized boolean receive(DHCPMessage outMessage)  {
 	try {
-	DatagramPacket incoming = 
-	    new DatagramPacket(new byte[PACKET_SIZE], 
-			       PACKET_SIZE);
-	gSocket.receive(incoming);
-		  
-	      
-	outMessage.ByteToObject(incoming.getData());
-	}
-	catch (IOException e) {
-	    System.err.println(e);      // comment for no SO_TIMEOUT debugging
+	    DatagramPacket incoming = 
+		new DatagramPacket(new byte[PACKET_SIZE], 
+				   PACKET_SIZE);
+	    gSocket.receive(incoming); // block on receive for SO_TIMEOUT
+
+	    outMessage.internalize(incoming.getData());
+	} catch (java.io.IOException e) {
 	    return false;
         }  // end catch    
 	return true;
