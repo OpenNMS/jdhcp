@@ -1,6 +1,6 @@
-// $Id: DHCPOptions.java,v 1.1 1999/07/09 07:59:46 jgoldsch Exp $
+// $Id: DHCPOptions.java,v 1.2 1999/09/07 03:00:02 jgoldsch Exp $
 
-package edu.bucknell.eg.JDHCP;
+package edu.bucknell.net.JDHCP;
 
 import java.util.*;
 
@@ -8,7 +8,7 @@ import java.util.*;
  * This class represents a linked list of options for a DHCP message.
  * Its purpose is to ease option handling such as add, remove, or change.
  * @author Jason Goldschmidt 
- * @version 1.1.0 7/9/1999
+ * @version 1.1.1 9/06/1999
  */
 public class DHCPOptions {
 
@@ -53,7 +53,7 @@ public class DHCPOptions {
      * @return true if option is set, otherwise false
      */
     public boolean contains(byte entryCode) {
-	return optionsTable.contains(new Byte(entryCode));
+	return optionsTable.containsKey(new Byte(entryCode));
     }
 
     /**

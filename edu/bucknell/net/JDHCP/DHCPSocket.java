@@ -1,23 +1,23 @@
 
-// 	$Id: DHCPSocket.java,v 1.2 1999/07/09 09:04:39 jgoldsch Exp $	
+// 	$Id: DHCPSocket.java,v 1.3 1999/09/07 03:00:44 jgoldsch Exp $	
 
-package edu.bucknell.eg.JDHCP;
+package edu.bucknell.net.JDHCP;
 
 import java.net.*;
 
 /**
  * This class represents a Socket for sending DHCP Messages
  * @author Jason Goldschmidt 
- * @version 1.1.0  1999/07/08 03:37:24
+ * @version 1.1.1  9/06/1999
  * @see java.net.DatagramSocket
  */
 
 
 public class DHCPSocket extends DatagramSocket  {
 
-    private int PACKET_SIZE = 1500; // default MTU for ethernet
-    private int defaultSOTIME_OUT = 3000;
-
+    static protected int PACKET_SIZE = 1500; // default MTU for ethernet
+    private int defaultSOTIME_OUT = 3000; // 3 second socket timeout
+    private DatagramSocket gSocket = null;
     /** 
      * Constructor for creating DHCPSocket on a specific port on the local
      * machine. 
@@ -25,8 +25,9 @@ public class DHCPSocket extends DatagramSocket  {
      */
 
     public DHCPSocket (int inPort) throws SocketException {
-	super();
-	setSoTimeout(defaultSOTIME_OUT); // set default timeout option
+	
+	super(inPort);
+	setSoTimeout(defaultSOTIME_OUT); // set default time out
     }
     
     /**
@@ -55,13 +56,21 @@ public class DHCPSocket extends DatagramSocket  {
        
     public synchronized void send(DHCPMessage inMessage)
 	 throws java.io.IOException {
-	     byte[] data = inMessage.externalize();
-	     DatagramPacket outgoing = new DatagramPacket(data,
-							  PACKET_SIZE,
-							  inMessage.
-							  getDestinationAddress(),
-							  inMessage.getPort());
-	     gSocket.send(outgoing); // send outgoing message
+	byte data[] = new byte[PACKET_SIZE];
+	data = inMessage.externalize();
+	InetAddress dest = null;
+	try {
+	    dest = InetAddress.getByName(inMessage.getDestinationAddress());
+	} catch (UnknownHostException e) {}
+	
+	DatagramPacket outgoing = 
+	    new DatagramPacket(data,
+			       data.length,
+			       dest,
+			       inMessage.getPort());
+	//gSocket.
+	send(outgoing); // send outgoing message
+	
     }
 
     /** 
@@ -76,7 +85,8 @@ public class DHCPSocket extends DatagramSocket  {
 	    DatagramPacket incoming = 
 		new DatagramPacket(new byte[PACKET_SIZE], 
 				   PACKET_SIZE);
-	    gSocket.receive(incoming); // block on receive for SO_TIMEOUT
+	    //gSocket.
+	    receive(incoming); // block on receive for SO_TIMEOUT
 
 	    outMessage.internalize(incoming.getData());
 	} catch (java.io.IOException e) {
