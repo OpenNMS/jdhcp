@@ -1,7 +1,7 @@
 /** DHCPMessage Class */
 /* by Jason Goldschmidt and Nick Stone 10/9/97*/
 
-
+// $Id: DHCPMessage.java,v 1.2 1999/02/02 02:12:06 jgoldsch Exp $
 package JDHCP;
 
 import java.net.*;
