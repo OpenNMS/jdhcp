@@ -1,7 +1,7 @@
 /** DHCPMessage Class */
-/* by Jason Goldschmidt and Nick Stone last updated 7/8/99*/
+/* by Jason Goldschmidt and Nick Stone last updated 1999/09/12*/
 
-// $Id: DHCPMessage.java,v 1.4 1999/09/07 03:00:25 jgoldsch Exp $
+// $Id: DHCPMessage.java,v 1.5 1999/09/13 04:09:51 jgoldsch Exp $
 
 package edu.bucknell.net.JDHCP;
 
@@ -31,168 +31,218 @@ public class DHCPMessage extends Object {
     private byte sname[] = new byte[64];	// Optional server host name
     private byte file [] = new byte[128];       // Boot file name
     private DHCPOptions optionsList = null; // internal representaton of 
-				            // DHCP Options
+    // DHCP Options
 
     private int gPort;		// global port variable for object
     private InetAddress destination_IP;		// IP format of the servername
 
+    /**
+     * Default DHCP client port
+     */
     public static final int CLIENT_PORT = 68; // client port (by default)
+
+    /**
+     * Default DHCP server port
+     */
     public static final int SERVER_PORT = 67; // server port (by default)
+
     public static InetAddress BROADCAST_ADDR = null; 
 
-     static {
-	 if (BROADCAST_ADDR == null) {
-	     try {
-		 BROADCAST_ADDR = 
-		     InetAddress.getByName("255.255.255.255"); 
-				 // broadcast address(by default)
-	     } catch (UnknownHostException e) {} 
-	 }
-     }
+    // DHCP Message Types
+    
+    /**
+     * Code for DHCPDISCOVER Message
+     */
+    public static final int DISCOVER = 1;
 
-     /** Creates empty DHCPMessage object,
-      * initializes the object, sets the host to the broadcast address,
-      * the local subnet, binds to the default server port. */
+    /**
+     * Code for DHCPOFFER Message
+     */
+    public static final int OFFER = 2;
 
-     public DHCPMessage () {
-	 Initialize();
+    /**
+     * Code for DHCPREQUEST Message
+     */
+    public static final int REQUEST = 3;
 
-	 destination_IP = BROADCAST_ADDR;
-	 gPort = SERVER_PORT;
+    /**
+     * Code for DHCPDECLINE Message
+     */
+    public static final int DECLINE = 4;
 
-     }
+    /**
+     * Code for DHCPACK Message
+     */
+    public static final int ACK = 5;
 
-     /** Copy constructor 
-      * creates DHCPMessage from inMessage
-      */
-     // This needs to be tested. 
-     public DHCPMessage (DHCPMessage inMessage) {
-	 Initialize();
-	 destination_IP = BROADCAST_ADDR;
-	 gPort = SERVER_PORT;
-	 op = inMessage.getOp();
-	 htype = inMessage.getHtype();
-	 hlen = inMessage.getHlen();
-	 hops = inMessage.getHops();
-	 xid = inMessage.getXid();
-	 secs = inMessage.getSecs();
-	 flags = inMessage.getFlags();
-	 ciaddr = inMessage.getCiaddr();
-	 yiaddr = inMessage.getYiaddr();
-	 siaddr = inMessage.getSiaddr();
-	 giaddr = inMessage.getGiaddr();
-	 chaddr = inMessage.getChaddr();
-	 sname = inMessage.getSname();
-	 file = inMessage.getFile();
-	 optionsList.internalize(inMessage.getOptions()); 
-	 
-     }
-     /** Copy constructor
-      * creates DHCPMessage from inMessage and sets server and port
-      */
+    /**
+     * Code for DHCPNAK Message
+     */
+    public static final int NAK = 6;
 
-     public DHCPMessage (DHCPMessage inMessage, 
-			 InetAddress inServername, 
-			 int inPort) {
-	 Initialize();
+    /**
+     * Code for DHCPRELEASE Message
+     */
+    public static final int RELEASE = 7;
 
-	 this.destination_IP = inServername;
-	 this.gPort = inPort;
-	 
-	 op = inMessage.getOp();
-	 htype = inMessage.getHtype();
-	 hlen = inMessage.getHlen();
-	 hops = inMessage.getHops();
-	 xid = inMessage.getXid();
-	 secs = inMessage.getSecs();
-	 flags = inMessage.getFlags();
-	 ciaddr = inMessage.getCiaddr();
-	 yiaddr = inMessage.getYiaddr();
-	 siaddr = inMessage.getSiaddr();
-	 giaddr = inMessage.getGiaddr();
-	 chaddr = inMessage.getChaddr();
-	 sname = inMessage.getSname();
-	 file = inMessage.getFile();
-	 optionsList.internalize(inMessage.getOptions()); 
-     }
+    /**
+     * Code for DHCPINFORM Message
+     */
+    public static final int INFORM = 8;
 
-     public DHCPMessage (DHCPMessage inMessage, InetAddress inServername) {
-	 Initialize();
-
-	 this.destination_IP = inServername;	 
-	 this.gPort = SERVER_PORT;
-
-	 op = inMessage.getOp();
-	 htype = inMessage.getHtype();
-	 hlen = inMessage.getHlen();
-	 hops = inMessage.getHops();
-	 xid = inMessage.getXid();
-	 secs = inMessage.getSecs();
-	 flags = inMessage.getFlags();
-	 ciaddr = inMessage.getCiaddr();
-	 yiaddr = inMessage.getYiaddr();
-	 siaddr = inMessage.getSiaddr();
-	 giaddr = inMessage.getGiaddr();
-	 chaddr = inMessage.getChaddr();
-	 sname = inMessage.getSname();
-	 file = inMessage.getFile();
-	 optionsList.internalize(inMessage.getOptions()); 
-     }
-
-
-     /** Creates empty DHCPMessage object,
-      * initializes the object, sets the host to a specified host name,
-      * and binds to a specified port.
-      * @param inServername  the host name
-      * @param inPort  the port number
-      */
-
-     public DHCPMessage (InetAddress inServername, int inPort) {
-	 Initialize();
-
-	 destination_IP = inServername;
-	 gPort = inPort;
-     }
-
-      /** Creates empty DHCPMessage object,
-      * initializes the object, sets the host to a specified host name,
-      * and binds to the default port.
-      * @param inServername  the host name
-      */
-
-     public DHCPMessage (InetAddress inServername) {
-	 Initialize();
-	 
-	 destination_IP = inServername;
-	 gPort = SERVER_PORT;
-     }
+    static {
+	if (BROADCAST_ADDR == null) {
+	    try {
+		BROADCAST_ADDR = 
+		    InetAddress.getByName("255.255.255.255"); 
+		// broadcast address(by default)
+	    } catch (UnknownHostException e) {} 
+	}
+    }
 
     /** Creates empty DHCPMessage object,
-      * initializes the object, sets the host to the broadcast address,
-      * and binds to a specified port.
-      * @param inPort  the port number
-      */
+     * initializes the object, sets the host to the broadcast address,
+     * the local subnet, binds to the default server port. */
 
-     public DHCPMessage (int inPort) {
-	 Initialize();
+    public DHCPMessage () {
+	Initialize();
 
-	 destination_IP = BROADCAST_ADDR;
-	 gPort = inPort;
-     }
+	destination_IP = BROADCAST_ADDR;
+	gPort = SERVER_PORT;
 
-     /** Creates empty DHCPMessage object,
-      * initializes the object with a specified byte array containing
-      * DHCP message information, sets the host to default host name, the
-      * local subnet, and bind to the default server port.
-      * @param ibuff[]  the byte array to initialize DHCPMessage object
-      */
+    }
 
-     public DHCPMessage (byte ibuf[] ) {
-	 Initialize();
-	 internalize(ibuf);
+    /** Copy constructor 
+     * creates DHCPMessage from inMessage
+     */
+    // This needs to be tested. 
+    public DHCPMessage (DHCPMessage inMessage) {
+	Initialize();
+	destination_IP = BROADCAST_ADDR;
+	gPort = SERVER_PORT;
+	op = inMessage.getOp();
+	htype = inMessage.getHtype();
+	hlen = inMessage.getHlen();
+	hops = inMessage.getHops();
+	xid = inMessage.getXid();
+	secs = inMessage.getSecs();
+	flags = inMessage.getFlags();
+	ciaddr = inMessage.getCiaddr();
+	yiaddr = inMessage.getYiaddr();
+	siaddr = inMessage.getSiaddr();
+	giaddr = inMessage.getGiaddr();
+	chaddr = inMessage.getChaddr();
+	sname = inMessage.getSname();
+	file = inMessage.getFile();
+	optionsList.internalize(inMessage.getOptions()); 
+	 
+    }
+    /** Copy constructor
+     * creates DHCPMessage from inMessage and sets server and port
+     */
 
-	 destination_IP = BROADCAST_ADDR;
-	 gPort = SERVER_PORT;
+    public DHCPMessage (DHCPMessage inMessage, 
+			InetAddress inServername, 
+			int inPort) {
+	Initialize();
+
+	this.destination_IP = inServername;
+	this.gPort = inPort;
+	 
+	op = inMessage.getOp();
+	htype = inMessage.getHtype();
+	hlen = inMessage.getHlen();
+	hops = inMessage.getHops();
+	xid = inMessage.getXid();
+	secs = inMessage.getSecs();
+	flags = inMessage.getFlags();
+	ciaddr = inMessage.getCiaddr();
+	yiaddr = inMessage.getYiaddr();
+	siaddr = inMessage.getSiaddr();
+	giaddr = inMessage.getGiaddr();
+	chaddr = inMessage.getChaddr();
+	sname = inMessage.getSname();
+	file = inMessage.getFile();
+	optionsList.internalize(inMessage.getOptions()); 
+    }
+
+    public DHCPMessage (DHCPMessage inMessage, InetAddress inServername) {
+	Initialize();
+
+	this.destination_IP = inServername;	 
+	this.gPort = SERVER_PORT;
+
+	op = inMessage.getOp();
+	htype = inMessage.getHtype();
+	hlen = inMessage.getHlen();
+	hops = inMessage.getHops();
+	xid = inMessage.getXid();
+	secs = inMessage.getSecs();
+	flags = inMessage.getFlags();
+	ciaddr = inMessage.getCiaddr();
+	yiaddr = inMessage.getYiaddr();
+	siaddr = inMessage.getSiaddr();
+	giaddr = inMessage.getGiaddr();
+	chaddr = inMessage.getChaddr();
+	sname = inMessage.getSname();
+	file = inMessage.getFile();
+	optionsList.internalize(inMessage.getOptions()); 
+    }
+
+
+    /** Creates empty DHCPMessage object,
+     * initializes the object, sets the host to a specified host name,
+     * and binds to a specified port.
+     * @param inServername  the host name
+     * @param inPort  the port number
+     */
+
+    public DHCPMessage (InetAddress inServername, int inPort) {
+	Initialize();
+
+	destination_IP = inServername;
+	gPort = inPort;
+    }
+
+    /** Creates empty DHCPMessage object,
+     * initializes the object, sets the host to a specified host name,
+     * and binds to the default port.
+     * @param inServername  the host name
+     */
+
+    public DHCPMessage (InetAddress inServername) {
+	Initialize();
+	 
+	destination_IP = inServername;
+	gPort = SERVER_PORT;
+    }
+
+    /** Creates empty DHCPMessage object,
+     * initializes the object, sets the host to the broadcast address,
+     * and binds to a specified port.
+     * @param inPort  the port number
+     */
+
+    public DHCPMessage (int inPort) {
+	Initialize();
+
+	destination_IP = BROADCAST_ADDR;
+	gPort = inPort;
+    }
+
+    /** Creates empty DHCPMessage object,
+     * initializes the object with a specified byte array containing
+     * DHCP message information, sets the host to default host name, the
+     * local subnet, and bind to the default server port.
+     * @param ibuff[]  the byte array to initialize DHCPMessage object
+     */
+
+    public DHCPMessage (byte ibuf[] ) {
+	Initialize();
+	internalize(ibuf);
+
+	destination_IP = BROADCAST_ADDR;
+	gPort = SERVER_PORT;
 	
     }
 
@@ -336,10 +386,10 @@ public class DHCPMessage extends Object {
     }
 
     /** Convert a specified byte array containing a DHCP message into a
-      * DHCPMessage object.
-      * @return a DHCPMessage object with information from byte array.
-      * @param  ibuff  byte array to convert to a DHCPMessage object
-      */
+     * DHCPMessage object.
+     * @return a DHCPMessage object with information from byte array.
+     * @param  ibuff  byte array to convert to a DHCPMessage object
+     */
 
     // Precondition: a byte array containg a DHCPMessage object.
     // Postconditon: the contents on the byte array are stored into
@@ -418,10 +468,10 @@ public class DHCPMessage extends Object {
     }
 
     /** Set seconds elapsed since client began address acquisition or
-      * renewal process.
-      * @param inSecs seconds elapsed since client began address acquisition
-      * or renewal process
-      */
+     * renewal process.
+     * @param inSecs seconds elapsed since client began address acquisition
+     * or renewal process
+     */
     public void setSecs(short inSecs) {
 	secs = inSecs;
     }
@@ -482,24 +532,23 @@ public class DHCPMessage extends Object {
 	file = inFile;
     }
 
-     /** Set message destination port.
-      * @param inPortNum port on message destination host
-      */
+    /** Set message destination port.
+     * @param inPortNum port on message destination host
+     */
     
     public void  setPort (int inPortNum) {
     	gPort = inPortNum;
     }
 
-     /** Set message destination IP
+    /** Set message destination IP
      * @param inHost string representation of message destination IP or 
      * hostname
      */
     public void  setDestinationHost (String inHost) {
         try {
     	    destination_IP = InetAddress.getByName(inHost);
-    	}
-    	catch (Exception e) {
-    	     System.err.println(e);
+    	} catch (Exception e) {
+	    System.err.println(e);
     	}
     }
 
@@ -533,7 +582,7 @@ public class DHCPMessage extends Object {
     }
 
     /** Get seconds elapsed since client began address acquisition or
-      renewal process.*/
+	renewal process.*/
     public short getSecs() {
 	return	secs;
     }
@@ -593,7 +642,7 @@ public class DHCPMessage extends Object {
      * @return an interger representation of the message destination port 
      */
     public int getPort() {
-            return gPort;
+	return gPort;
     }
 
     /** Get message destination hostname
@@ -601,7 +650,7 @@ public class DHCPMessage extends Object {
      * destination server 
      */
     public String getDestinationAddress() {
-            return destination_IP.getHostAddress();
+	return destination_IP.getHostAddress();
     }
     
     
@@ -639,9 +688,13 @@ public class DHCPMessage extends Object {
     public void removeOption(int inOptNum) {
 	if (optionsList == null) {
 	    Initialize();
-	 }
+	}
 	optionsList.removeOption( (byte) inOptNum);
     }
+
+    /** Report whether or not the input option is set
+     * @param inOptNum  option number
+     */
 
     /*
      * DHCPMessage::IsOptSet
@@ -666,10 +719,11 @@ public class DHCPMessage extends Object {
 	byte[] data = externalize();
 	for(int i = 0; i < 100; i++) {
 	    System.out.print(data[i]);
-	    if ( ((i % 25) == 0)  && (i != 0))
+	    if ( ((i % 25) == 0)  && (i != 0)) {
 		System.out.print("\n");
-	    else
+	    } else {
 		System.out.print(" ");
+	    }
 	}
 	System.out.print("\n");
 	if (optionsList == null) {
