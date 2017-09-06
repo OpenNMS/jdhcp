@@ -1,33 +1,30 @@
-
-// 	$Id: DHCPSocket.java,v 1.3 1999/09/07 03:00:44 jgoldsch Exp $	
-
 package edu.bucknell.net.JDHCP;
 
-import java.net.*;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
 
 /**
  * This class represents a Socket for sending DHCP Messages
  * @author Jason Goldschmidt 
- * @version 1.1.1  9/06/1999
  * @see java.net.DatagramSocket
  */
 
 
 public class DHCPSocket extends DatagramSocket  {
+    protected static int sPACKETSIZE = 1500; // default MTU for ethernet
+    private static final int DEFAULT_SO_TIMEOUT = 3000; // 3 second socket timeout
 
-    static protected int PACKET_SIZE = 1500; // default MTU for ethernet
-    private int defaultSOTIME_OUT = 3000; // 3 second socket timeout
-    private DatagramSocket gSocket = null;
     /** 
-     * Constructor for creating DHCPSocket on a specific port on the local
-     * machine. 
+     * Constructor for creating DHCPSocket on a specific port on the local machine. 
      * @param inPort the port for the application to bind.
      */
 
-    public DHCPSocket (int inPort) throws SocketException {
-
+    public DHCPSocket (final int inPort) throws SocketException {
         super(inPort);
-        setSoTimeout(defaultSOTIME_OUT); // set default time out
+        setSoTimeout(DEFAULT_SO_TIMEOUT);
     }
 
     /**
@@ -36,8 +33,8 @@ public class DHCPSocket extends DatagramSocket  {
      * @param inSize integer representing desired MTU
      */
 
-    public void setMTU(int inSize) {
-        PACKET_SIZE = inSize;
+    public static void setMTU(final int inSize) {
+        sPACKETSIZE = inSize;
     }
 
     /**
@@ -45,32 +42,21 @@ public class DHCPSocket extends DatagramSocket  {
      * @return the Maximum Transfer Unit set for this socket
      */
 
-    public int getMTU() {
-        return PACKET_SIZE;
+    public static int getMTU() {
+        return sPACKETSIZE;
     }
 
     /**
-     * Sends a DHCPMessage object to a predifined host.
+     * Sends a DHCPMessage object to a predefined host.
      * @param inMessage well-formed DHCPMessage to be sent to a server
      */
 
-    public synchronized void send(DHCPMessage inMessage)
-            throws java.io.IOException {
-        byte data[] = new byte[PACKET_SIZE];
-        data = inMessage.externalize();
-        InetAddress dest = null;
-        try {
-            dest = InetAddress.getByName(inMessage.getDestinationAddress());
-        } catch (UnknownHostException e) {}
+    public synchronized void send(final DHCPMessage inMessage) throws IOException {
+        final byte[] data = inMessage.externalize();
+        final InetAddress dest = inMessage.getDestination();
 
-        DatagramPacket outgoing = 
-                new DatagramPacket(data,
-                                   data.length,
-                                   dest,
-                                   inMessage.getPort());
-        //gSocket.
+        final DatagramPacket outgoing = new DatagramPacket(data, data.length, dest, inMessage.getPort());
         send(outgoing); // send outgoing message
-
     }
 
     /** 
@@ -80,27 +66,16 @@ public class DHCPSocket extends DatagramSocket  {
      * @param outMessage DHCPMessage object to receive new message into
      */
 
-    public synchronized boolean receive(DHCPMessage outMessage)  {
+    public synchronized boolean receive(final DHCPMessage outMessage)  {
         try {
-            DatagramPacket incoming = 
-                    new DatagramPacket(new byte[PACKET_SIZE], 
-                                       PACKET_SIZE);
-            //gSocket.
+            final DatagramPacket incoming = new DatagramPacket(new byte[sPACKETSIZE], sPACKETSIZE);
             receive(incoming); // block on receive for SO_TIMEOUT
 
             outMessage.internalize(incoming.getData());
-        } catch (java.io.IOException e) {
+        } catch (final IOException e) {
             return false;
-        }  // end catch    
+        }
         return true;
     }
 
-
-
 }
-
-
-
-
-
-

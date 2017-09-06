@@ -1,14 +1,13 @@
-// $Id: DHCPOptions.java,v 1.2 1999/09/07 03:00:02 jgoldsch Exp $
-
 package edu.bucknell.net.JDHCP;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class represents a linked list of options for a DHCP message.
  * Its purpose is to ease option handling such as add, remove, or change.
  * @author Jason Goldschmidt 
- * @version 1.1.1 9/06/1999
  */
 public class DHCPOptions {
 
@@ -16,34 +15,27 @@ public class DHCPOptions {
      *This inner class represent an entry in the Option Table
      */
 
-    class DHCPOptionsEntry extends Object {
+    private static class DHCPOptionsEntry {
         protected byte code;
         protected byte length;
-        protected byte content[];
+        protected byte[] content;
 
-
-        public DHCPOptionsEntry(byte entryCode, byte entryLength,
-                byte entryContent[]) {
+        public DHCPOptionsEntry(final byte entryCode, final byte entryLength, final byte[] entryContent) {
             code = entryCode;
             length = entryLength;
             content = entryContent;
         }
     }
 
-    private Hashtable optionsTable = null;
-
-    public DHCPOptions () {
-        optionsTable = new Hashtable();
-    }
-
+    private Map<Byte, DHCPOptionsEntry> optionsTable = new ConcurrentHashMap<Byte,DHCPOptionsEntry>();
 
     /**
      * Removes option with specified bytecode
      * @param entryCode The code of option to be removed
      */
 
-    public void removeOption(byte entryCode) {
-        optionsTable.remove(new Byte(entryCode));
+    public void removeOption(final byte entryCode) {
+        optionsTable.remove(entryCode);
     }
 
 
@@ -52,8 +44,8 @@ public class DHCPOptions {
      * @param entryCode The node's option code
      * @return true if option is set, otherwise false
      */
-    public boolean contains(byte entryCode) {
-        return optionsTable.containsKey(new Byte(entryCode));
+    public boolean contains(final byte entryCode) {
+        return optionsTable.containsKey(entryCode);
     }
 
     /**
@@ -70,14 +62,11 @@ public class DHCPOptions {
      * @return byte array containing the value of option entryCode.
      *         null is returned if option is not set.
      */
-    public byte[] getOption(byte entryCode) {
+    public byte[] getOption(final byte entryCode) {
         if (this.contains(entryCode)) {
-            DHCPOptionsEntry ent = 
-                    (DHCPOptionsEntry) optionsTable.get(new Byte(entryCode));
-            return ent.content;
-        } else {
-            return null;
+            return optionsTable.get(entryCode).content;
         }
+        return null; //NOSONAR
     }
 
     /**
@@ -85,10 +74,8 @@ public class DHCPOptions {
      * @param entryCode The node's option code
      * @param value[] Content of node option
      */
-    public void setOption (byte entryCode, byte value[]) {
-        DHCPOptionsEntry opt = 
-                new DHCPOptionsEntry(entryCode, (byte) value.length, value);
-        optionsTable.put(new Byte(entryCode), opt);
+    public void setOption (final byte entryCode, final byte[] value) {
+        optionsTable.put(entryCode, new DHCPOptionsEntry(entryCode, (byte)value.length, value));
     }
 
     /**
@@ -98,10 +85,11 @@ public class DHCPOptions {
      * @param options[] The byte array of options
      * @return byte array containing the value for the option
      */
-    private byte[] getArrayOption(int length, int position, byte options[]) {
-        byte value[] = new byte[(int) length];
-        for (int i = 0; i < (int) length; i++)
+    private byte[] getArrayOption(final int length, final int position, final byte[] options) {
+        final byte[] value = new byte[length];
+        for (int i = 0; i < length; i++) {
             value[i] = options[position + i];
+        }
         return value;
     }
 
@@ -110,12 +98,11 @@ public class DHCPOptions {
      * Converts an options byte array to a linked list
      * @param optionsArray[] The byte array representation of the options list
      */
-    public void internalize(byte [] optionsArray) {
-
-        /* Assume options valid and correct */
+    public void internalize(final byte[] optionsArray) {
         int pos = 4;		// ignore vendor magic cookie
-        byte code, length;
-        byte value[];
+        byte code;
+        byte length;
+        byte[] value;
 
         while (optionsArray[pos] != (byte) 255) { // until end option
             code = optionsArray[pos++];
@@ -126,14 +113,12 @@ public class DHCPOptions {
         }
     }
 
-
     /**
      * Converts a linked options list to a byte array
      * @return array representation of optionsTable
      */
-    // todo provide overflow return
     public byte[] externalize() {
-        byte[] options = new byte[312];
+        final byte[] options = new byte[312];
 
         options[0] = (byte) 99;    // insert vendor magic cookie
         options[1] = (byte) 130;
@@ -141,8 +126,8 @@ public class DHCPOptions {
         options[3] = (byte) 99;
 
         int position = 4;
-        for(Enumeration e = optionsTable.elements(); e.hasMoreElements(); ) {
-            DHCPOptionsEntry entry = (DHCPOptionsEntry) e.nextElement();
+        for (final Iterator<DHCPOptionsEntry> e = optionsTable.values().iterator(); e.hasNext(); ) {
+            final DHCPOptionsEntry entry = e.next();
             options[position++] = entry.code;
             options[position++] = entry.length;
             for(int i = 0; i < entry.length; ++i) {
@@ -153,20 +138,10 @@ public class DHCPOptions {
         return options;
     }
 
-
     /**
-     *	Prints the options linked list: For testing only.
+     *  Prints the options linked list: For testing only.
      */
     public void printList() {
         System.out.println(optionsTable.toString());
     }
 }
-
-
-
-
-
-
-
-
-
