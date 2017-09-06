@@ -25,52 +25,52 @@ public class DHCPSocket extends DatagramSocket  {
      */
 
     public DHCPSocket (int inPort) throws SocketException {
-	
-	super(inPort);
-	setSoTimeout(defaultSOTIME_OUT); // set default time out
+
+        super(inPort);
+        setSoTimeout(defaultSOTIME_OUT); // set default time out
     }
-    
+
     /**
      * Sets the Maximum Transfer Unit for the UDP DHCP Packets to be set.
      * Default is 1500, MTU for Ethernet
      * @param inSize integer representing desired MTU
      */
-    
+
     public void setMTU(int inSize) {
-	PACKET_SIZE = inSize;
+        PACKET_SIZE = inSize;
     }
 
     /**
      * Returns the set MTU for this socket
      * @return the Maximum Transfer Unit set for this socket
      */
-    
+
     public int getMTU() {
-	return PACKET_SIZE;
+        return PACKET_SIZE;
     }
-    
+
     /**
      * Sends a DHCPMessage object to a predifined host.
      * @param inMessage well-formed DHCPMessage to be sent to a server
      */
-       
+
     public synchronized void send(DHCPMessage inMessage)
-	 throws java.io.IOException {
-	byte data[] = new byte[PACKET_SIZE];
-	data = inMessage.externalize();
-	InetAddress dest = null;
-	try {
-	    dest = InetAddress.getByName(inMessage.getDestinationAddress());
-	} catch (UnknownHostException e) {}
-	
-	DatagramPacket outgoing = 
-	    new DatagramPacket(data,
-			       data.length,
-			       dest,
-			       inMessage.getPort());
-	//gSocket.
-	send(outgoing); // send outgoing message
-	
+            throws java.io.IOException {
+        byte data[] = new byte[PACKET_SIZE];
+        data = inMessage.externalize();
+        InetAddress dest = null;
+        try {
+            dest = InetAddress.getByName(inMessage.getDestinationAddress());
+        } catch (UnknownHostException e) {}
+
+        DatagramPacket outgoing = 
+                new DatagramPacket(data,
+                                   data.length,
+                                   dest,
+                                   inMessage.getPort());
+        //gSocket.
+        send(outgoing); // send outgoing message
+
     }
 
     /** 
@@ -79,27 +79,27 @@ public class DHCPSocket extends DatagramSocket  {
      * @return true if message is received, false if timeout occurs.  
      * @param outMessage DHCPMessage object to receive new message into
      */
-    
-    public synchronized boolean receive(DHCPMessage outMessage)  {
-	try {
-	    DatagramPacket incoming = 
-		new DatagramPacket(new byte[PACKET_SIZE], 
-				   PACKET_SIZE);
-	    //gSocket.
-	    receive(incoming); // block on receive for SO_TIMEOUT
 
-	    outMessage.internalize(incoming.getData());
-	} catch (java.io.IOException e) {
-	    return false;
+    public synchronized boolean receive(DHCPMessage outMessage)  {
+        try {
+            DatagramPacket incoming = 
+                    new DatagramPacket(new byte[PACKET_SIZE], 
+                                       PACKET_SIZE);
+            //gSocket.
+            receive(incoming); // block on receive for SO_TIMEOUT
+
+            outMessage.internalize(incoming.getData());
+        } catch (java.io.IOException e) {
+            return false;
         }  // end catch    
-	return true;
+        return true;
     }
-    
-    
-    
+
+
+
 }
 
-    
+
 
 
 

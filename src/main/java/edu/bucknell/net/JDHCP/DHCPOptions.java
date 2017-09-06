@@ -21,12 +21,12 @@ public class DHCPOptions {
         protected byte length;
         protected byte content[];
 
-        
+
         public DHCPOptionsEntry(byte entryCode, byte entryLength,
-				byte entryContent[]) {
-	    code = entryCode;
-	    length = entryLength;
-	    content = entryContent;
+                byte entryContent[]) {
+            code = entryCode;
+            length = entryLength;
+            content = entryContent;
         }
     }
 
@@ -43,7 +43,7 @@ public class DHCPOptions {
      */
 
     public void removeOption(byte entryCode) {
-	optionsTable.remove(new Byte(entryCode));
+        optionsTable.remove(new Byte(entryCode));
     }
 
 
@@ -53,7 +53,7 @@ public class DHCPOptions {
      * @return true if option is set, otherwise false
      */
     public boolean contains(byte entryCode) {
-	return optionsTable.containsKey(new Byte(entryCode));
+        return optionsTable.containsKey(new Byte(entryCode));
     }
 
     /**
@@ -61,7 +61,7 @@ public class DHCPOptions {
      * @return true if there are no options set, otherwise false
      */
     public boolean isEmpty() {
-	return optionsTable.isEmpty();
+        return optionsTable.isEmpty();
     }
 
     /**
@@ -71,13 +71,13 @@ public class DHCPOptions {
      *         null is returned if option is not set.
      */
     public byte[] getOption(byte entryCode) {
-	if (this.contains(entryCode)) {
-	    DHCPOptionsEntry ent = 
-		(DHCPOptionsEntry) optionsTable.get(new Byte(entryCode));
-	    return ent.content;
-	} else {
-	    return null;
-	}
+        if (this.contains(entryCode)) {
+            DHCPOptionsEntry ent = 
+                    (DHCPOptionsEntry) optionsTable.get(new Byte(entryCode));
+            return ent.content;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -86,9 +86,9 @@ public class DHCPOptions {
      * @param value[] Content of node option
      */
     public void setOption (byte entryCode, byte value[]) {
-	DHCPOptionsEntry opt = 
-	    new DHCPOptionsEntry(entryCode, (byte) value.length, value);
-	optionsTable.put(new Byte(entryCode), opt);
+        DHCPOptionsEntry opt = 
+                new DHCPOptionsEntry(entryCode, (byte) value.length, value);
+        optionsTable.put(new Byte(entryCode), opt);
     }
 
     /**
@@ -99,10 +99,10 @@ public class DHCPOptions {
      * @return byte array containing the value for the option
      */
     private byte[] getArrayOption(int length, int position, byte options[]) {
-	byte value[] = new byte[(int) length];
-	for (int i = 0; i < (int) length; i++)
-	    value[i] = options[position + i];
-	return value;
+        byte value[] = new byte[(int) length];
+        for (int i = 0; i < (int) length; i++)
+            value[i] = options[position + i];
+        return value;
     }
 
 
@@ -112,18 +112,18 @@ public class DHCPOptions {
      */
     public void internalize(byte [] optionsArray) {
 
-    	/* Assume options valid and correct */
-	int pos = 4;		// ignore vendor magic cookie
-	byte code, length;
-    	byte value[];
+        /* Assume options valid and correct */
+        int pos = 4;		// ignore vendor magic cookie
+        byte code, length;
+        byte value[];
 
-    	while (optionsArray[pos] != (byte) 255) { // until end option
-	    code = optionsArray[pos++];
-	    length = optionsArray[pos++];
-	    value = getArrayOption(length, pos, optionsArray);
-	    setOption(code, value);
-	    pos += length;	// increment position pointer
-	}
+        while (optionsArray[pos] != (byte) 255) { // until end option
+            code = optionsArray[pos++];
+            length = optionsArray[pos++];
+            value = getArrayOption(length, pos, optionsArray);
+            setOption(code, value);
+            pos += length;	// increment position pointer
+        }
     }
 
 
@@ -135,10 +135,10 @@ public class DHCPOptions {
     public byte[] externalize() {
         byte[] options = new byte[312];
 
-	options[0] = (byte) 99;    // insert vendor magic cookie
-	options[1] = (byte) 130;
-	options[2] = (byte) 83;
-	options[3] = (byte) 99;
+        options[0] = (byte) 99;    // insert vendor magic cookie
+        options[1] = (byte) 130;
+        options[2] = (byte) 83;
+        options[3] = (byte) 99;
 
         int position = 4;
         for(Enumeration e = optionsTable.elements(); e.hasMoreElements(); ) {
@@ -158,7 +158,7 @@ public class DHCPOptions {
      *	Prints the options linked list: For testing only.
      */
     public void printList() {
-    	System.out.println(optionsTable.toString());
+        System.out.println(optionsTable.toString());
     }
 }
 
