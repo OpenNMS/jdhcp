@@ -1,0 +1,103 @@
+README file for JDHCP package
+
+0. Introduction
+
+Thank you downloading the JDHCP package.  JDHCP is an application programming 
+interface, written in Java(tm), for the Dynamic Host Configuration Protocol as
+specified in RFC 2131.  JDHCP can be downloaded from 
+http://www.eg.bucknell.edu/~jgoldsch/dhcp/
+
+In the package you will find the following:
+
+CHANGELOG: listing of all changes made to the JDHCP project since it's
+initial release. 
+
+COPYING: license under which JDHCP falls
+
+README: This file
+
+Makefile: provided Makefile for building and installing the JDHCP package
+on Unix platforms. Can be edited to work with others though.
+
+api/: directory containing the JDHCP API documentation
+
+classes/: directory used when building the JDHCP jar file
+
+edu/bucknell/net/JDHCP/: directory containing the JDHCP source files
+
+examples/: directory containing example programs written with JDHCP
+examples/dhcpclient.java: Simulation of a DHCP client written with JDHCP
+examples/README.dhcpclient: Instructions on building and using dhcpclient
+
+jars/: directory containing the JDHCP.jar file
+
+1. Requirements
+
+- JDK 1.1.x or higher 
+- gnu make or similar (optional)
+
+If you have Makefile support in your Operating System (ie you have GNU make or 
+similar installed), then you can take advantage of the JDHCP Makefile.
+
+2. Compiling JDHCP
+
+Compiling JDHCP is optional, because the JDHCP.jar file is shipped with the JDHCP 
+package.  It is located in the <path-to-JDHCP>/jars directory.
+
+If you would like to recompile or compile your own changes to JDHCP do the 
+following:
+
+(with make) 
+
+% edit Makefile
+% make all
+
+(without make)
+(in Unix OS)
+
+% javac -d classes <path-to-JDHCP>/edu/bucknell/net/*.java
+% cd classes; jar cvMf ../jars/JDHCP.jar edu/bucknell/net/JDHCP/*.class 
+
+
+(in Windows)
+
+% javac -d classes <path-to-JDHCP>\edu/bucknell\net\*.java
+% cd classes; jar cvMf ..\jars\JDHCP.jar edu\bucknell\net\JDHCP\*.class 
+
+3. Installing JDHCP
+
+(with make)
+
+% edit Makefile 
+% (as root or superuser) make install
+
+(w/out make)
+
+copy <path-to-JDHCP>/jars/JDHCP.jar into /usr/local/lib/classes or appropriate 
+directory in your CLASSPATH. 
+
+4. Using JDHCP
+
+As long as the JDHCP.jar file is in your CLASSPATH variable, you can compile
+a program that uses JDHCP. This can be done by setting the CLASSPATH variable:
+
+In Unix: 
+
+(tcsh) % setenv CLASSPATH <path-to-JDHCP.jar>/JDHCP.jar:$CLASSPATH
+(bash) % set CLASSPATH=<path-to-JDHCP.jar>/JDHCP.jar:$CLASSPATH
+
+In Windows 9x/NT:
+% set CLASSPATH=<path-to-JDHCP.jar>\JDHCP.jar:$CLASSPATH
+
+or if using JDK 1.2 or higher:
+
+% java(c) -classpath <path-to-JDHCP.jar>/JDHCP.jar progie.java
+
+
+For an example of an application written with JDHCP see the dhcpclient in the 
+example directory. 
+
+5. The Rest
+
+Please send bugs, features, idea, comments, patches, whatever to jgoldsch@acm.org
+

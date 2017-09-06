@@ -1,0 +1,85 @@
+README file for dhcpclient, a DHCP simulation program used to show how
+the JDHCP API works. The simulation will interact with the DHCP server
+on your network and attempt to act like a DHCP client. To find
+out more about the lifecycle of a DHCP client, read RFC 2131. 
+
+
+To compile dhcpclient.java.
+
+First compile the JDHCP package (see ../README for more info on this)
+
+You need the JDHCP package in your classpath. 
+
+Do this by setting the CLASSPATH variable. In JDK1.1 your CLASSPATH variable 
+shoudl be pointing to the classes.zip file that ships with JDK and the
+current directory. 
+
+In Unix: 
+
+(tcsh) % setenv CLASSPATH <path-to-JDHCP-1.1.x>/jars/JDHCP.jar:$CLASSPATH
+(bash) % set CLASSPATH=<path-to-JDHCP-1.1.x>/jars/JDHCP.jar:$CLASSPATH
+
+In Windows 9x/NT:
+% set CLASSPATH=<path-to-JDHCP-1.1.x>\JARS\JDHCP.jar:$CLASSPATH
+
+In JDK1.2, there is no need to set the classpath, the javac -classpath 
+parameter will do the correct thing. 
+
+
+Compiling dhcpclient.java
+
+(JDK1.1 w/ CLASSPATH set)% javac dhcpclient.java
+
+or 
+
+(JDK1.2) % javac -classpath <path-to-JDHCP-1.1.x>\JARS\JDHCP.jar:.
+
+Running dhcpclient
+
+(JDK1.1 w/ CLASSPATH SET) % java dhcpclient <ethernet_addresss> 
+
+(JDK1.2) % java -classpath <path-to-JDHCP-1.1.x>\JARS\JDHCP.jar:. dhcpclient <ethernet_addresss> 
+
+For example:
+
+%java dhcpclient 12:34:56:76:0f:08
+
+If everything works correctly, you will see this message (example only):
+
+********************************************************
+* Starting dhcpclient sample application written using *
+* JDHCP v1.1.1. Learn more about the JDHCP project at  *
+* http://www.eg.bucknell.edu/~jgoldsch/dhcp/           *
+* JDHCP is an API for writting Java(tm) applications   *
+* that speak the Dynamic Host Configuration Protocol   *
+* Note: dhcpclient is merely a simulation of what a    *
+* DHCP client does within its lifecycle as specified   *
+* in RFC 2131 and 2132. This application and JDHCP was *
+* co-authored by Jason Goldschmidt and Nick Stone.     *
+********************************************************
+Sending DHCPDISCOVER....
+12:34:56:76:0f:08 received a DHCPOFFER for 192.168.88.9
+12:34:56:76:0f:08 sending DHCPREQUEST for 192.168.88.9
+12:34:56:76:0f:08 received an DHCPACK and a leasetime.
+Binding to IP address: 192.168.88.9
+Goodnight for 1800000 seconds
+.
+.
+
+
+If instead you receive this message:
+Socket Bind Error: 
+Another process is bound to this port
+or you do not have access to bind a process to this port
+
+Then you do not have access to run dhcpclient on that machine. 
+
+
+Send me <jgoldsch@acm.org> bugs, questions, patches and ideas!
+
+
+
+
+
+
+

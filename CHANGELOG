@@ -1,0 +1,43 @@
+JDHCP CHANGELOG
+email: jgoldsch@acm.org with questions/bugs/features
+
+1999/09/12: v1.1.1:
+
+- Big fixes
+- improved Makefile support
+- added static constants to dhcpclient + JDHCP (see API)
+- changed package name to edu.bucknell.net.JDHCP
+
+1999/07/05: v1.1.0 (not released to public)
+
+- Rewrite of DHCPOptions, API changes and updates
+- Changed DHCPMessage.ObjectToByte => externalize 
+          DHCPMessage.ByteToObject => internalize
+- Rewrite of DHCPSocket
+- Updated API
+- Bug fixes to dhcpclient
+- change package name to edu.bucknell.net.JDHCP
+- added Makefile support
+- Jar file support
+- Documentation updates
+- JDHCP installation 
+
+1999/03/05: v1.0.2 (not released to public)
+
+- Bug fixes
+
+
+1999/02/01: v1.0.1
+* DHCPOptions rewrite and bug fix
+* dhcpclient driver is now Java 2.0 compliant (removal of
+  Thread.stop()  control of client)
+* minor changes to DHCPSocket
+* Added get/set functions for accessing destination server IP and port
+  variables for a DHCPMessage object.
+* Added copy constructor to DHCPMessage
+* Updated API
+
+
+
+1998/11/20: v1.0.0
+* initial public release
