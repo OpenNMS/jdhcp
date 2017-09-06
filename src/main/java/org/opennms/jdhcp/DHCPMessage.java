@@ -431,16 +431,6 @@ public class DHCPMessage extends Object {
         gPort = inPortNum;
     }
 
-    /** Set message destination IP
-     * @param inHost string representation of message destination IP or 
-     * hostname
-     * @deprecated use {{@link #setDestination(InetAddress)} instead
-     * @throws UnknownHostException 
-     */
-    @Deprecated
-    public void  setDestinationHost(final String inHost) throws UnknownHostException {
-        destination = InetAddress.getByName(inHost);
-    }
     /** Set message destination
      * @param inHost the message destination
      */
@@ -538,16 +528,6 @@ public class DHCPMessage extends Object {
         return gPort;
     }
 
-    /** Get message destination hostname
-     * @return a string representing the hostname of the message 
-     * destination server 
-     * @deprecated use {{@link #getDestination()} instead
-     */
-    @Deprecated
-    public String getDestinationAddress() {
-        return destination.getHostAddress();
-    }
-
     /** Get message destination
      * @return the destination
      */
@@ -586,15 +566,6 @@ public class DHCPMessage extends Object {
 
     public void removeOption(final int inOptNum) {
         optionsList.removeOption((byte)inOptNum);
-    }
-
-    /** Report whether or not the input option is set
-     * @param inOptNum  option number
-     * @deprecated
-     */
-    @Deprecated
-    public boolean IsOptSet(final int inOptNum) {
-        return isOptSet(inOptNum);
     }
 
     /** Report whether or not the input option is set
