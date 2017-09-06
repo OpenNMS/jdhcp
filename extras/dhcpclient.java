@@ -7,7 +7,7 @@ import java.net.*;
 import java.io.*;
 import java.util.Random;
 import java.util.StringTokenizer; 
-import edu.bucknell.net.JDHCP.*;
+import org.opennms.jdhcp.*;
 
 //----------------------------------------------------------------
 // dhcpclient simulation program

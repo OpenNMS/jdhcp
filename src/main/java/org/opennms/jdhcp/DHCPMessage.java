@@ -1,4 +1,4 @@
-package edu.bucknell.net.JDHCP;
+package org.opennms.jdhcp;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -635,7 +635,7 @@ public class DHCPMessage extends Object {
         file = inMessage.getFile();
     }
 
-    private void readInputStream(final DataInputStream inStream) throws IllegalStateException {
+    private void readInputStream(final DataInputStream inStream) throws MalformedPacketException {
         try {
             op = inStream.readByte();
             htype = inStream.readByte();

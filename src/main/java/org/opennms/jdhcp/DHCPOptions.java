@@ -1,4 +1,4 @@
-package edu.bucknell.net.JDHCP;
+package org.opennms.jdhcp;
 
 import java.util.Iterator;
 import java.util.Map;

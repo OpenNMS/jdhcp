@@ -1,6 +1,6 @@
-package edu.bucknell.net.JDHCP;
+package org.opennms.jdhcp;
 
-public class MalformedPacketException extends IllegalStateException {
+public class MalformedPacketException extends Exception {
     private static final long serialVersionUID = 1L;
 
     public MalformedPacketException() {

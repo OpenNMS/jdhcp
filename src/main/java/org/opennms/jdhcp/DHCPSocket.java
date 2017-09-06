@@ -1,4 +1,4 @@
-package edu.bucknell.net.JDHCP;
+package org.opennms.jdhcp;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -66,13 +66,13 @@ public class DHCPSocket extends DatagramSocket  {
      * @param outMessage DHCPMessage object to receive new message into
      */
 
-    public synchronized boolean receive(final DHCPMessage outMessage)  {
+    public synchronized boolean receive(final DHCPMessage outMessage) {
         try {
             final DatagramPacket incoming = new DatagramPacket(new byte[sPACKETSIZE], sPACKETSIZE);
             receive(incoming); // block on receive for SO_TIMEOUT
 
             outMessage.internalize(incoming.getData());
-        } catch (final IOException e) {
+        } catch (final Exception e) {
             return false;
         }
         return true;
