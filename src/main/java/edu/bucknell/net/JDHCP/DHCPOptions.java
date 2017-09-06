@@ -85,10 +85,12 @@ public class DHCPOptions {
      * @param options[] The byte array of options
      * @return byte array containing the value for the option
      */
-    private byte[] getArrayOption(final int length, final int position, final byte[] options) {
+    private byte[] getArrayOption(final int length, final int position, final byte[] options) throws MalformedPacketException {
         final byte[] value = new byte[length];
-        for (int i = 0; i < length; i++) {
-            value[i] = options[position + i];
+        try {
+            System.arraycopy(options, position, value, 0, length);
+        } catch (final Exception e) {
+            throw new MalformedPacketException(e);
         }
         return value;
     }
@@ -98,13 +100,13 @@ public class DHCPOptions {
      * Converts an options byte array to a linked list
      * @param optionsArray[] The byte array representation of the options list
      */
-    public void internalize(final byte[] optionsArray) {
+    public void internalize(final byte[] optionsArray) throws MalformedPacketException {
         int pos = 4;		// ignore vendor magic cookie
         byte code;
         byte length;
         byte[] value;
 
-        while (optionsArray[pos] != (byte) 255) { // until end option
+        while (pos < optionsArray.length && optionsArray[pos] != (byte) 255) { // until end option
             code = optionsArray[pos++];
             length = optionsArray[pos++];
             value = getArrayOption(length, pos, optionsArray);

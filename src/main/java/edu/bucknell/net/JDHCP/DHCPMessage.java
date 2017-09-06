@@ -110,7 +110,7 @@ public class DHCPMessage extends Object {
     /** Copy constructor 
      * creates DHCPMessage from inMessage
      */
-    public DHCPMessage(final DHCPMessage inMessage) {
+    public DHCPMessage(final DHCPMessage inMessage) throws MalformedPacketException {
         destination = sBROADCAST;
         gPort = SERVER_PORT;
         setMessageValues(inMessage);
@@ -122,7 +122,7 @@ public class DHCPMessage extends Object {
      * creates DHCPMessage from inMessage and sets server and port
      */
 
-    public DHCPMessage(final DHCPMessage inMessage, final InetAddress inServername, final int inPort) {
+    public DHCPMessage(final DHCPMessage inMessage, final InetAddress inServername, final int inPort) throws MalformedPacketException {
         destination = inServername;
         gPort = inPort;
 
@@ -130,7 +130,7 @@ public class DHCPMessage extends Object {
         optionsList.internalize(inMessage.getOptions()); 
     }
 
-    public DHCPMessage(final DHCPMessage inMessage, final InetAddress inServername) {
+    public DHCPMessage(final DHCPMessage inMessage, final InetAddress inServername) throws MalformedPacketException {
         destination = inServername;	 
         gPort = SERVER_PORT;
 
@@ -181,7 +181,7 @@ public class DHCPMessage extends Object {
      * @throws IOException 
      */
 
-    public DHCPMessage(final byte[] ibuf) throws IOException {
+    public DHCPMessage(final byte[] ibuf) throws MalformedPacketException {
         internalize(ibuf);
 
         destination = sBROADCAST;
@@ -200,7 +200,7 @@ public class DHCPMessage extends Object {
      * @throws IOException 
      */
 
-    public DHCPMessage(final byte[] ibuf, final InetAddress inServername, final int inPort) throws IOException {
+    public DHCPMessage(final byte[] ibuf, final InetAddress inServername, final int inPort) throws MalformedPacketException {
         internalize(ibuf);
 
         destination = inServername;
@@ -217,7 +217,7 @@ public class DHCPMessage extends Object {
      * @throws IOException 
      */
 
-    public DHCPMessage(final byte[] ibuf, final int inPort) throws IOException {
+    public DHCPMessage(final byte[] ibuf, final int inPort) throws MalformedPacketException {
         internalize(ibuf);
 
         destination = sBROADCAST;
@@ -234,7 +234,7 @@ public class DHCPMessage extends Object {
      * @throws IOException 
      */
 
-    public DHCPMessage(final byte[] ibuf, final InetAddress inServername) throws IOException {
+    public DHCPMessage(final byte[] ibuf, final InetAddress inServername) throws MalformedPacketException {
         internalize(ibuf);
 
         destination = inServername;
@@ -245,7 +245,7 @@ public class DHCPMessage extends Object {
     // ********add port/server options for all constructors************
     // plus add constructor that takes DHCPMessage object parameter and
     // sets IP and port from input param. can we say pain in my arse!
-    public DHCPMessage(final DataInputStream inStream) throws IOException {
+    public DHCPMessage(final DataInputStream inStream) throws MalformedPacketException {
         readInputStream(inStream);
     }
 
@@ -302,7 +302,7 @@ public class DHCPMessage extends Object {
     // Postcondition: the contents on the byte array are stored into
     // the data members of the DHCPMessage object.
 
-    public synchronized DHCPMessage internalize(final byte[] ibuff) throws IOException {
+    public synchronized DHCPMessage internalize(final byte[] ibuff) throws MalformedPacketException {
         ByteArrayInputStream inBStream = null;
         DataInputStream inStream = null;
 
@@ -635,24 +635,28 @@ public class DHCPMessage extends Object {
         file = inMessage.getFile();
     }
 
-    private void readInputStream(final DataInputStream inStream) throws IOException {
-        op = inStream.readByte();
-        htype = inStream.readByte();
-        hlen = inStream.readByte();
-        hops = inStream.readByte();
-        xid = inStream.readInt();
-        secs = inStream.readShort();
-        flags = inStream.readShort();
-        inStream.readFully(ciaddr, 0, 4);
-        inStream.readFully(yiaddr, 0, 4);
-        inStream.readFully(siaddr, 0, 4);
-        inStream.readFully(giaddr, 0, 4);
-        inStream.readFully(chaddr, 0, 16);
-        inStream.readFully(sname, 0, 64);
-        inStream.readFully(file, 0, 128);
-        final byte[] options = new byte[312];
-        inStream.readFully(options, 0, 312);
-        optionsList.internalize(options);
+    private void readInputStream(final DataInputStream inStream) throws IllegalStateException {
+        try {
+            op = inStream.readByte();
+            htype = inStream.readByte();
+            hlen = inStream.readByte();
+            hops = inStream.readByte();
+            xid = inStream.readInt();
+            secs = inStream.readShort();
+            flags = inStream.readShort();
+            inStream.readFully(ciaddr, 0, 4);
+            inStream.readFully(yiaddr, 0, 4);
+            inStream.readFully(siaddr, 0, 4);
+            inStream.readFully(giaddr, 0, 4);
+            inStream.readFully(chaddr, 0, 16);
+            inStream.readFully(sname, 0, 64);
+            inStream.readFully(file, 0, 128);
+            final byte[] options = new byte[312];
+            inStream.readFully(options, 0, 312);
+            optionsList.internalize(options);
+        } catch (final IOException e) {
+            throw new MalformedPacketException("Unable to read packet stream.", e);
+        }
     }
 
     private static void closeQuietly(final OutputStream stream) {
